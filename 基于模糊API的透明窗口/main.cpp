@@ -77,9 +77,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         200, 200, w, h,nullptr, nullptr, hInstance, nullptr);
     EnableAlphaCompositing(hwnd);
     {
-        D2D1_FACTORY_OPTIONS options = {};
-        options.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
-        D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED,options,&d2d1Factory);
+        D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED,&d2d1Factory);
         auto pixelFormat = D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED);
         auto renderProps = D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_DEFAULT,pixelFormat);
         auto size = D2D1::SizeU(w, h);
