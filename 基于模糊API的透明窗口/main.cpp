@@ -42,9 +42,12 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if (uMsg == WM_PAINT)
     {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
         renderTarget->BeginDraw();
         renderTarget->Clear(D2D1::ColorF(0.2f, 0.3f, 0.5f, 0.5f));
         renderTarget->EndDraw();
+        EndPaint(hWnd, &ps);
         return 0;
     }
     else if (uMsg == WM_SIZING) {
@@ -70,7 +73,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     wcx.hInstance = hInstance;
     wcx.hCursor = LoadCursor(NULL, IDC_ARROW);
     RegisterClassEx(&wcx);
-    HWND hwnd = CreateWindowEx(NULL, wcx.lpszClassName, L"SampleWindow", WS_OVERLAPPEDWINDOW,
+    HWND hwnd = CreateWindowEx(NULL, wcx.lpszClassName, L"SampleWindow", WS_POPUP,
         200, 200, w, h,nullptr, nullptr, hInstance, nullptr);
     EnableAlphaCompositing(hwnd);
     {

@@ -58,7 +58,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     wcx.hCursor = LoadCursor(NULL, IDC_ARROW);
     wcx.lpszClassName = L"LayeredWindow";
     RegisterClassEx(&wcx);
-    hwnd = CreateWindowEx(WS_EX_LAYERED, wcx.lpszClassName, wcx.lpszClassName, WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 100, 100, w, h, NULL, NULL, hInstance, NULL);
+    hwnd = CreateWindowEx(WS_EX_LAYERED, wcx.lpszClassName, wcx.lpszClassName, WS_POPUP, 100, 100, w, h, NULL, NULL, hInstance, NULL);
     paint();
     ShowWindow(hwnd, SW_SHOW);
     UpdateWindow(hwnd);
