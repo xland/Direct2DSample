@@ -8,16 +8,16 @@
 using namespace Microsoft::WRL;
 
 HWND hwnd;
-int x{ 100 }, y{100},w{ 800 }, h{ 600 };
+int x{ 100 },y{100},w{ 800 }, h{ 600 };
 ComPtr<ID3D11Device> d3dDevice;
 ComPtr<IDXGIDevice> dxgiDevice;
 ComPtr<IDXGISwapChain1> swapChain;
 ComPtr<ID2D1Factory2> d2dFactory;
 ComPtr<ID2D1RenderTarget> renderTarget;
-ComPtr<IDCompositionDevice>     compositionDevice;
-ComPtr<IDCompositionTarget>     compositionTarget;
-ComPtr<IDCompositionVisual>     compositionVisual;
-ComPtr<ID2D1SolidColorBrush>    brush;
+ComPtr<IDCompositionDevice> compositionDevice;
+ComPtr<IDCompositionTarget> compositionTarget;
+ComPtr<IDCompositionVisual> compositionVisual;
+ComPtr<ID2D1SolidColorBrush> brush;
 
 
 void initD2D() {
@@ -124,7 +124,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     RegisterClass(&wc);
     hwnd = CreateWindowEx(WS_EX_NOREDIRECTIONBITMAP, wc.lpszClassName, L"Sample", WS_OVERLAPPEDWINDOW | WS_VISIBLE, x, y, w, h, nullptr, nullptr, hInstance, nullptr);
     initD2D();
-    MSG msg = { 0 };
+    MSG msg = {};
     while (GetMessage(&msg, nullptr, 0, 0))
     {
         TranslateMessage(&msg);

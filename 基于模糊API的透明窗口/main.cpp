@@ -85,7 +85,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         d2d1Factory->CreateHwndRenderTarget(renderProps, hwndRenderProps, &renderTarget);        
     }
     ShowWindow(hwnd, SW_NORMAL);
-    MSG msg = { 0 };
+    MSG msg = { };
     while (GetMessage(&msg, nullptr, 0, 0))
     {
         TranslateMessage(&msg);
