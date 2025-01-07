@@ -6,7 +6,7 @@ static int w{ 800 }, h{600};
 static ID2D1Factory* d2d1Factory = nullptr;
 static ID2D1HwndRenderTarget* renderTarget = nullptr;
 
-bool EnableAlphaCompositing(HWND hWnd)
+bool enableAlphaCompositing(HWND hWnd)
 {
     if (!IsWindowsVistaOrGreater()) { return false; }
     BOOL isCompositionEnable = false;
@@ -38,7 +38,7 @@ bool EnableAlphaCompositing(HWND hWnd)
 }
 
 
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK winProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if (uMsg == WM_PAINT)
     {
@@ -68,14 +68,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 {
     WNDCLASSEXW wcx = {};
     wcx.cbSize = sizeof(wcx);
-    wcx.lpfnWndProc = WindowProc;
+    wcx.lpfnWndProc = winProc;
     wcx.lpszClassName = L"Direct2DSample";
     wcx.hInstance = hInstance;
     wcx.hCursor = LoadCursor(NULL, IDC_ARROW);
     RegisterClassEx(&wcx);
     HWND hwnd = CreateWindowEx(NULL, wcx.lpszClassName, L"SampleWindow", WS_POPUP,
         200, 200, w, h,nullptr, nullptr, hInstance, nullptr);
-    EnableAlphaCompositing(hwnd);
+    enableAlphaCompositing(hwnd);
     {
         D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED,&d2d1Factory);
         auto pixelFormat = D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED);
