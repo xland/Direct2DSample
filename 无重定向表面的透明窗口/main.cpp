@@ -7,22 +7,6 @@
 #include <dcomp.h>
 using namespace Microsoft::WRL;
 
-struct ComException
-{
-    HRESULT result;
-    ComException(HRESULT const value) :
-        result(value)
-    {
-    }
-};
-void HR(HRESULT const result)
-{
-    if (S_OK != result)
-    {
-        throw ComException(result);
-    }
-}
-
 ComPtr<ID3D11Device> direct3dDevice;
 ComPtr<IDXGIDevice> dxgiDevice;
 ComPtr<IDXGIFactory2> dxFactory;
@@ -39,7 +23,7 @@ ComPtr<IDCompositionVisual> visual;
 
 int WINAPI wWinMain(HINSTANCE module, HINSTANCE, PWSTR, int)
 {
-    HR(D3D11CreateDevice(nullptr,    // Adapter
+    D3D11CreateDevice(nullptr,    // Adapter
         D3D_DRIVER_TYPE_HARDWARE,
         nullptr,    // Module
         D3D11_CREATE_DEVICE_BGRA_SUPPORT,  //支持与Direct2D的互操作性
@@ -47,12 +31,9 @@ int WINAPI wWinMain(HINSTANCE module, HINSTANCE, PWSTR, int)
         D3D11_SDK_VERSION,
         &direct3dDevice,
         nullptr,    // Actual feature level
-        nullptr));  // Device context    
-    HR(direct3dDevice.As(&dxgiDevice));
-    HR(CreateDXGIFactory2(
-        DXGI_CREATE_FACTORY_DEBUG,
-        __uuidof(dxFactory),
-        reinterpret_cast<void**>(dxFactory.GetAddressOf())));
+        nullptr);  // Device context    
+    direct3dDevice.As(&dxgiDevice);
+    CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG,__uuidof(dxFactory),reinterpret_cast<void**>(dxFactory.GetAddressOf()));
 
 
 
@@ -75,10 +56,7 @@ int WINAPI wWinMain(HINSTANCE module, HINSTANCE, PWSTR, int)
     RegisterClass(&wc);
     HWND const window = CreateWindowEx(WS_EX_NOREDIRECTIONBITMAP,
         wc.lpszClassName, L"Sample",
-        WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-        CW_USEDEFAULT, CW_USEDEFAULT,
-        CW_USEDEFAULT, CW_USEDEFAULT,
-        nullptr, nullptr, module, nullptr);
+        WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 800, 600, nullptr, nullptr, module, nullptr);
 
     DXGI_SWAP_CHAIN_DESC1 description = {};
     description.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -92,86 +70,59 @@ int WINAPI wWinMain(HINSTANCE module, HINSTANCE, PWSTR, int)
     description.Width = rect.right - rect.left;
     description.Height = rect.bottom - rect.top;
 
-    HR(dxFactory->CreateSwapChainForComposition(dxgiDevice.Get(),
-        &description,
-        nullptr, // Don’t restrict
-        swapChain.GetAddressOf()));
+    dxFactory->CreateSwapChainForComposition(dxgiDevice.Get(),
+        &description,nullptr, // Don’t restrict
+        swapChain.GetAddressOf());
 
 
 
 
-    D2D1_FACTORY_OPTIONS const options = { D2D1_DEBUG_LEVEL_INFORMATION };
-    HR(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED,
-        options,
-        d2Factory.GetAddressOf()));
+    
+    D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED,d2Factory.GetAddressOf());
     // Create the Direct2D device that links back to the Direct3D device
 
-    HR(d2Factory->CreateDevice(dxgiDevice.Get(), d2Device.GetAddressOf()));
+    d2Factory->CreateDevice(dxgiDevice.Get(), d2Device.GetAddressOf());
     // Create the Direct2D device context that is the actual render target
     // and exposes drawing commands
 
-    HR(d2Device->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE,
-        dc.GetAddressOf()));
+    d2Device->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE,dc.GetAddressOf());
     // Retrieve the swap chain's back buffer
 
-    HR(swapChain->GetBuffer(
-        0, // index
-        __uuidof(surface),
-        reinterpret_cast<void**>(surface.GetAddressOf())));
+    swapChain->GetBuffer(0,__uuidof(surface), reinterpret_cast<void**>(surface.GetAddressOf()));
     // Create a Direct2D bitmap that points to the swap chain surface
     D2D1_BITMAP_PROPERTIES1 properties = {};
     properties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
     properties.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
-    properties.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET |
-        D2D1_BITMAP_OPTIONS_CANNOT_DRAW;
+    properties.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW;
     ComPtr<ID2D1Bitmap1> bitmap;
-    HR(dc->CreateBitmapFromDxgiSurface(surface.Get(),
-        properties,
-        bitmap.GetAddressOf()));
+    dc->CreateBitmapFromDxgiSurface(surface.Get(), properties, bitmap.GetAddressOf());
     // Point the device context to the bitmap for rendering
     dc->SetTarget(bitmap.Get());
     // Draw something
-
-
     dc->BeginDraw();
     dc->Clear();
     ComPtr<ID2D1SolidColorBrush> brush;
-    D2D1_COLOR_F const brushColor = D2D1::ColorF(0.18f,  // red
-        0.55f,  // green
-        0.34f,  // blue
-        0.75f); // alpha
-    HR(dc->CreateSolidColorBrush(brushColor,
-        brush.GetAddressOf()));
-    D2D1_POINT_2F const ellipseCenter = D2D1::Point2F(150.0f,  // x
-        150.0f); // y
-    D2D1_ELLIPSE const ellipse = D2D1::Ellipse(ellipseCenter,
-        100.0f,  // x radius
-        100.0f); // y radius
-    dc->FillEllipse(ellipse,
-        brush.Get());
-    HR(dc->EndDraw());
+    D2D1_COLOR_F const brushColor = D2D1::ColorF(0.18f, 0.55f, 0.34f, 0.75f); // rgba
+    dc->CreateSolidColorBrush(brushColor, brush.GetAddressOf());
+    D2D1_POINT_2F const ellipseCenter = D2D1::Point2F(150.0f, 150.0f); // y
+    D2D1_ELLIPSE const ellipse = D2D1::Ellipse(ellipseCenter, 100.0f, 100.0f);
+    dc->FillEllipse(ellipse, brush.Get());
+    dc->EndDraw();
     // Make the swap chain available to the composition engine
-    HR(swapChain->Present(1,   // sync
-        0)); // flags
+    swapChain->Present(1, 0); //// sync flags
 
 
 
-    HR(DCompositionCreateDevice(
-        dxgiDevice.Get(),
-        __uuidof(dcompDevice),
-        reinterpret_cast<void**>(dcompDevice.GetAddressOf())));
-    HR(dcompDevice->CreateTargetForHwnd(window,
-        true, // Top most
-        target.GetAddressOf()));
-    HR(dcompDevice->CreateVisual(visual.GetAddressOf()));
-    HR(visual->SetContent(swapChain.Get()));
-    HR(target->SetRoot(visual.Get()));
-    HR(dcompDevice->Commit());
-
-
-    MSG message;
-    while (BOOL result = GetMessage(&message, 0, 0, 0))
+    DCompositionCreateDevice(dxgiDevice.Get(),__uuidof(dcompDevice),reinterpret_cast<void**>(dcompDevice.GetAddressOf()));
+    dcompDevice->CreateTargetForHwnd(window,true, target.GetAddressOf()); // Top most        
+    dcompDevice->CreateVisual(visual.GetAddressOf());
+    visual->SetContent(swapChain.Get());
+    target->SetRoot(visual.Get());
+    dcompDevice->Commit();
+    MSG msg = { 0 };
+    while (GetMessage(&msg, nullptr, 0, 0))
     {
-        if (-1 != result) DispatchMessage(&message);
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
 }
