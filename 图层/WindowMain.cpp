@@ -81,36 +81,26 @@ void WindowMain::paint()
     renderTarget->BeginDraw();
     renderTarget->Clear(D2D1::ColorF(0.6f, 0.6f, 0.2f, 0.5f));
 
-    ComPtr<IWICImagingFactory> wicFactory;
-    auto hr = CoCreateInstance(CLSID_WICImagingFactory,nullptr,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&wicFactory));
-    //https://learn.microsoft.com/en-us/windows/win32/wic/-wic-about-windows-imaging-codec
-    ComPtr<IWICBitmapDecoder> decoder;
-    wicFactory->CreateDecoderFromFilename(L"../../../../author.jpg",
-        nullptr,
-        GENERIC_READ,
-        WICDecodeMetadataCacheOnDemand,
-        &decoder
+
+    ComPtr<ID2D1Layer> layer;
+    renderTarget->CreateLayer(&layer);
+
+    ComPtr<ID2D1EllipseGeometry> clipGeometry;
+    d2dFactory->CreateEllipseGeometry(D2D1::Ellipse(D2D1::Point2F(150, 150), 100, 100), &clipGeometry);
+    D2D1_LAYER_PARAMETERS layerParams = D2D1::LayerParameters(
+        D2D1::InfiniteRect(),
+        clipGeometry.Get(),                // 剪裁几何
+        D2D1_ANTIALIAS_MODE_PER_PRIMITIVE,
+        D2D1::IdentityMatrix(),
+        0.5f                               // 50% 不透明度
     );
-    ComPtr<IWICBitmapFrameDecode> frame;
-    decoder->GetFrame(0, &frame);
+    renderTarget->PushLayer(&layerParams, layer.Get());
+    ComPtr<ID2D1SolidColorBrush> brush;
+    D2D1_COLOR_F brushColor = D2D1::ColorF(0.18f, 0.68f, 0.86f, 1.f);
+    renderTarget->CreateSolidColorBrush(brushColor, brush.GetAddressOf());
+    renderTarget->FillRectangle(D2D1::RectF(50, 50, 300, 300), brush.Get());
+    renderTarget->PopLayer();
 
-    ComPtr<IWICFormatConverter> converter;
-    wicFactory->CreateFormatConverter(&converter);
-
-    converter->Initialize(
-        frame.Get(),
-        GUID_WICPixelFormat32bppPBGRA,  // 转换为 Direct2D 兼容格式
-        WICBitmapDitherTypeNone,
-        nullptr,
-        0.0,
-        WICBitmapPaletteTypeCustom
-    );
-
-    ComPtr<ID2D1Bitmap> d2dBitmap;
-    renderTarget->CreateBitmapFromWicBitmap(converter.Get(), nullptr, &d2dBitmap);
-
-    D2D1_RECT_F destRect = D2D1::RectF(20, 20, 180, 180);
-    renderTarget->DrawBitmap(d2dBitmap.Get(),destRect);
 
     renderTarget->EndDraw();
     swapChain->Present(1, 0);

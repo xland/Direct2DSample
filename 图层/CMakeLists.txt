@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.18)
+set(PROJECT_NAME "Direct2DSample")
+project(${PROJECT_NAME})
+set(CMAKE_CXX_STANDARD 20)
+
+add_executable(${PROJECT_NAME})
+target_sources(${PROJECT_NAME} PRIVATE 
+	"main.cpp" 
+	  "WindowMain.h" 
+	  "WindowMain.cpp")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DPI_AWARE "PerMonitor")
+target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:UNICODE DEBUG NOMINMAX _SILENCE_ALL_CXX20_DEPRECATION_WARNINGS WIN32 _WINDOWS>)
+target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Release>:UNICODE NDEBUG NOMINMAX _SILENCE_ALL_CXX20_DEPRECATION_WARNINGS WIN32 _WINDOWS>)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} dxgi d3d11 d2d1 dcomp dwmapi kernel32 user32 shell32)
