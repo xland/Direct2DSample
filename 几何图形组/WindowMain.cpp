@@ -81,53 +81,7 @@ void WindowMain::paint()
     renderTarget->BeginDraw();
     renderTarget->Clear(D2D1::ColorF(0.6f, 0.6f, 0.2f, 0.5f));
 
-    ComPtr<IWICImagingFactory> wicFactory;
-    auto hr = CoCreateInstance(CLSID_WICImagingFactory,nullptr,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&wicFactory));
-    ComPtr<IWICBitmapDecoder> decoder;
-    wicFactory->CreateDecoderFromFilename(L"../../../../author.jpg",
-        nullptr,
-        GENERIC_READ,
-        WICDecodeMetadataCacheOnDemand,
-        &decoder
-    );
-    ComPtr<IWICBitmapFrameDecode> frame;
-    decoder->GetFrame(0, &frame);
-
-    ComPtr<IWICFormatConverter> converter;
-    wicFactory->CreateFormatConverter(&converter);
-
-    converter->Initialize(
-        frame.Get(),
-        GUID_WICPixelFormat32bppPBGRA,  // 转换为 Direct2D 兼容格式
-        WICBitmapDitherTypeNone,
-        nullptr,
-        0.0,
-        WICBitmapPaletteTypeCustom
-    );
-
-    ComPtr<ID2D1Bitmap> d2dBitmap;
-    renderTarget->CreateBitmapFromWicBitmap(converter.Get(), nullptr, &d2dBitmap);
-    D2D1_RECT_F destRect = D2D1::RectF(20, 20, 180, 180);
-    renderTarget->DrawBitmap(d2dBitmap.Get(), destRect);
-
-    
-
-
-    //ComPtr<ID2D1BitmapRenderTarget> pBitmapRenderTarget;
-    //renderTarget->CreateCompatibleRenderTarget(&pBitmapRenderTarget);
-    //D2D1_RECT_F destRect = D2D1::RectF(20, 20, 180, 180);
-    //renderTarget->DrawBitmap(d2dBitmap.Get(), destRect);
-    //ComPtr<ID2D1SolidColorBrush> pBrush;
-    //pBitmapRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red), &pBrush);
-    //pBitmapRenderTarget->BeginDraw();
-    //pBitmapRenderTarget->FillRectangle(D2D1::RectF(10, 10, 60, 60), pBrush.Get());
-    //pBitmapRenderTarget->EndDraw();
-    //ComPtr<ID2D1Bitmap> pBitmap;
-    //pBitmapRenderTarget->GetBitmap(&pBitmap);
-    //D2D1_RECT_F destRect2 = D2D1::RectF(0, 0, w, h);
-    //renderTarget->DrawBitmap(pBitmap.Get(),destRect2);
-
-
+    //https://learn.microsoft.com/en-us/windows/win32/api/d2d1/ne-d2d1-d2d1_combine_mode?redirectedfrom=MSDN
 
     renderTarget->EndDraw();
     swapChain->Present(1, 0);

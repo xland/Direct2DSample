@@ -1,0 +1,1 @@
+https://learn.microsoft.com/en-us/windows/win32/wic/-wic-about-windows-imaging-codec
